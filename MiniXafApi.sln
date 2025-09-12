@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36429.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniXafApi.WebApi", "MiniXafApi.WebApi\MiniXafApi.WebApi.csproj", "{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		EasyTest|Any CPU = EasyTest|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}.EasyTest|Any CPU.ActiveCfg = EasyTest|Any CPU
+		{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}.EasyTest|Any CPU.Build.0 = EasyTest|Any CPU
+		{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
