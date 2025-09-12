@@ -5,6 +5,33 @@ VisualStudioVersion = 17.14.36429.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniXafApi.WebApi", "MiniXafApi.WebApi\MiniXafApi.WebApi.csproj", "{4EBBE3A0-0DAD-6DB0-DC2F-49AC2228AF8E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget-packages", "nuget-packages", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		nuget-packages\DevExpress.CodeParser.24.2.8.nupkg = nuget-packages\DevExpress.CodeParser.24.2.8.nupkg
+		nuget-packages\DevExpress.Data.24.2.8.nupkg = nuget-packages\DevExpress.Data.24.2.8.nupkg
+		nuget-packages\DevExpress.DataAccess.24.2.8.nupkg = nuget-packages\DevExpress.DataAccess.24.2.8.nupkg
+		nuget-packages\DevExpress.Drawing.24.2.8.nupkg = nuget-packages\DevExpress.Drawing.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.Api.Xpo.All.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.Api.Xpo.All.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.AspNetCore.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.AspNetCore.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.Objects.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.Objects.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.Security.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.Security.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.Security.AspNetCore.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.Security.AspNetCore.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.Security.Xpo.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.Security.Xpo.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.WebApi.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.WebApi.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.WebApi.Xpo.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.WebApi.Xpo.24.2.8.nupkg
+		nuget-packages\DevExpress.ExpressApp.Xpo.24.2.8.nupkg = nuget-packages\DevExpress.ExpressApp.Xpo.24.2.8.nupkg
+		nuget-packages\DevExpress.Images.24.2.8.nupkg = nuget-packages\DevExpress.Images.24.2.8.nupkg
+		nuget-packages\DevExpress.Office.Core.24.2.8.nupkg = nuget-packages\DevExpress.Office.Core.24.2.8.nupkg
+		nuget-packages\DevExpress.Pdf.Core.24.2.8.nupkg = nuget-packages\DevExpress.Pdf.Core.24.2.8.nupkg
+		nuget-packages\DevExpress.Pdf.Drawing.24.2.8.nupkg = nuget-packages\DevExpress.Pdf.Drawing.24.2.8.nupkg
+		nuget-packages\DevExpress.Persistent.Base.24.2.8.nupkg = nuget-packages\DevExpress.Persistent.Base.24.2.8.nupkg
+		nuget-packages\DevExpress.Persistent.BaseImpl.Xpo.24.2.8.nupkg = nuget-packages\DevExpress.Persistent.BaseImpl.Xpo.24.2.8.nupkg
+		nuget-packages\DevExpress.Printing.Core.24.2.8.nupkg = nuget-packages\DevExpress.Printing.Core.24.2.8.nupkg
+		nuget-packages\DevExpress.RichEdit.Core.24.2.8.nupkg = nuget-packages\DevExpress.RichEdit.Core.24.2.8.nupkg
+		nuget-packages\DevExpress.Scheduler.Core.24.2.8.nupkg = nuget-packages\DevExpress.Scheduler.Core.24.2.8.nupkg
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,5 +48,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {02098156-22E7-484C-B006-DDA3FBBA7046}
 	EndGlobalSection
 EndGlobal
