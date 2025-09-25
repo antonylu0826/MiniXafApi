@@ -1,7 +1,6 @@
 ﻿using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Security;
-using DevExpress.ExpressApp.Security.Authentication.ClientServer;
 using DevExpress.ExpressApp.WebApi.Services;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,8 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OData;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MiniXafApi.WebApi.API.Security;
 using MiniXafApi.WebApi.BusinessObjects;
 using MiniXafApi.WebApi.JWT;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 namespace MiniXafApi.WebApi;
@@ -24,11 +25,9 @@ public class Startup
 
     public IConfiguration Configuration { get; }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
-    // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddScoped<IAuthenticationTokenProvider, JwtTokenProviderService>();
+        services.AddScoped<JwtTokenProviderService>();
 
         services.AddXafWebApi(builder =>
         {
@@ -36,7 +35,6 @@ public class Startup
 
             builder.ConfigureOptions(options =>
             {
-                // Make your business objects available in the Web API and generate the GET, POST, PUT, and DELETE HTTP methods for it.
                 options.BusinessObject<Employee>();
             });
 
@@ -65,12 +63,8 @@ public class Startup
                     options.Lockout.Enabled = true;
 
                     options.RoleType = typeof(PermissionPolicyRole);
-                    // ApplicationUser descends from PermissionPolicyUser and supports the OAuth authentication. For more information, refer to the following topic: https://docs.devexpress.com/eXpressAppFramework/402197
-                    // If your application uses PermissionPolicyUser or a custom user type, set the UserType property as follows:
-                    options.UserType = typeof(MiniXafApi.WebApi.BusinessObjects.ApplicationUser);
-                    // ApplicationUserLoginInfo is only necessary for applications that use the ApplicationUser user type.
-                    // If you use PermissionPolicyUser or a custom user type, comment out the following line:
-                    options.UserLoginInfoType = typeof(MiniXafApi.WebApi.BusinessObjects.ApplicationUserLoginInfo);
+                    options.UserType = typeof(ApplicationUser);
+                    options.UserLoginInfoType = typeof(ApplicationUserLoginInfo);
                     options.UseXpoPermissionsCaching();
                     options.Events.OnSecurityStrategyCreated += securityStrategy =>
                     {
@@ -80,7 +74,16 @@ public class Startup
                 .AddPasswordAuthentication(options =>
                 {
                     options.IsSupportChangePassword = true;
-                });
+                })
+                .AddAuthenticationProvider<RopcAuthenticationProvider>()
+                .AddRopcAuthentication(options =>
+                {
+                    options.TokenEndpoint = $"{Configuration["Authentication:Keycloak:Authority"]}/protocol/openid-connect/token";
+                    options.ClientId = Configuration["Authentication:Keycloak:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Keycloak:ClientSecret"];
+                })
+                ;
+
 
             builder.AddBuildStep(application =>
             {
@@ -109,8 +112,36 @@ public class Startup
                     .EnableQueryFeatures(100);
             });
 
-        services.AddAuthentication()
-            .AddJwtBearer(options =>
+        services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "JwtSchemaSelector";
+            })
+            .AddPolicyScheme("JwtSchemaSelector", JwtBearerDefaults.AuthenticationScheme, options =>
+             {
+                 options.ForwardDefaultSelector = context =>
+                 {
+                     var authHeader = context.Request.Headers.Authorization.ToString();
+                     if (authHeader?.StartsWith("Bearer ") == true)
+                     {
+                         var token = authHeader.Substring("Bearer ".Length);
+
+                         try
+                         {
+                             var handler = new JwtSecurityTokenHandler();
+                             var jwt = handler.ReadJwtToken(token);
+                             var issuer = jwt.Issuer;
+                             if (!string.IsNullOrEmpty(issuer))
+                             {
+                                 if (issuer.Contains("my-realm"))
+                                     return "ROPC";
+                             }
+                         }
+                         catch { }
+                     }
+                     return "DefaultJwt";
+                 };
+             })
+            .AddJwtBearer("DefaultJwt", options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
@@ -121,12 +152,38 @@ public class Startup
                     ValidateAudience = false,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:IssuerSigningKey"]))
                 };
+            })
+            .AddJwtBearer("ROPC", options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = Configuration["Authentication:Keycloak:Authority"],
+
+                    ValidateAudience = true,
+                    ValidAudience = "account",
+
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = false,
+
+                    IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+                    {
+                        var client = new HttpClient();
+                        var keyUri = $"{parameters.ValidIssuer}/protocol/openid-connect/certs";
+                        var response = client.GetAsync(keyUri).Result;
+                        var keys = new JsonWebKeySet(response.Content.ReadAsStringAsync().Result);
+
+                        return keys.GetSigningKeys();
+                    }
+                };
+
+                options.RequireHttpsMetadata = false; // Only in develop environment
+                options.SaveToken = false;
             });
 
         services.AddAuthorization(options =>
         {
-            options.DefaultPolicy = new AuthorizationPolicyBuilder(
-                JwtBearerDefaults.AuthenticationScheme)
+            options.DefaultPolicy = new AuthorizationPolicyBuilder("JwtSchemaSelector")
                     .RequireAuthenticatedUser()
                     .RequireXafAuthentication()
                     .Build();
@@ -164,16 +221,10 @@ public class Startup
 
         services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(o =>
         {
-            //The code below specifies that the naming of properties in an object serialized to JSON must always exactly match
-            //the property names within the corresponding CLR type so that the property names are displayed correctly in the Swagger UI.
-            //XPO is case-sensitive and requires this setting so that the example request data displayed by Swagger is always valid.
-            //Comment this code out to revert to the default behavior.
-            //See the following article for more information: https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonserializeroptions.propertynamingpolicy
             o.JsonSerializerOptions.PropertyNamingPolicy = null;
         });
     }
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())
@@ -188,7 +239,6 @@ public class Startup
         else
         {
             app.UseExceptionHandler("/Error");
-            // The default HSTS value is 30 days. To change this for production scenarios, see: https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
         app.UseHttpsRedirection();
